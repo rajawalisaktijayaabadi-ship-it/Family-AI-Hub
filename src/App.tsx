@@ -21,6 +21,12 @@ import { ProfileScreen } from './features/profile/ProfileScreen';
 import { SettingsScreen } from './features/settings/SettingsScreen';
 import { ShowcaseScreen } from './features/showcase/ShowcaseScreen';
 import { AIAssistantModal } from './features/ai/AIAssistantModal';
+import { AIFamilyAssistantHub } from './features/ai/AIFamilyAssistantHub';
+import { MoodHomeScreen } from './features/mood/MoodHomeScreen';
+import { PsychologyCenterScreen } from './features/psychology/PsychologyCenterScreen';
+import { ParentingHomeScreen } from './features/parenting/ParentingHomeScreen';
+import { HealthHomeScreen } from './features/health/HealthHomeScreen';
+import { FinanceHomeScreen } from './features/finance/FinanceHomeScreen';
 import { useUIStore } from './stores/useUIStore';
 
 const MainAppContent: React.FC = () => {
@@ -91,8 +97,18 @@ const MainAppContent: React.FC = () => {
           title={
             activeTab === 'home'
               ? 'FamilyAI Hub'
+              : activeTab === 'finance'
+              ? 'Finance AI & Budget'
+              : activeTab === 'health'
+              ? 'AI Health & Medical'
+              : activeTab === 'parenting'
+              ? 'AI Parenting Hub'
               : activeTab === 'ai'
               ? 'Family AI Assistant'
+              : activeTab === 'mood'
+              ? 'AI Mood Detection'
+              : activeTab === 'psychology'
+              ? 'Pusat Psikologi'
               : activeTab === 'activity'
               ? 'Aktivitas Keluarga'
               : activeTab === 'notification'
@@ -115,7 +131,16 @@ const MainAppContent: React.FC = () => {
           ) : (
             <>
               {activeTab === 'home' && <DashboardScreen onOpenAI={() => setIsAIOpen(true)} />}
-              {activeTab === 'ai' && <DashboardScreen onOpenAI={() => setIsAIOpen(true)} />}
+              {activeTab === 'finance' && <FinanceHomeScreen />}
+              {activeTab === 'health' && <HealthHomeScreen />}
+              {activeTab === 'parenting' && <ParentingHomeScreen />}
+              {activeTab === 'ai' && (
+                <AIFamilyAssistantHub isOpen={true} onClose={() => setActiveTab('home')} />
+              )}
+              {activeTab === 'mood' && (
+                <MoodHomeScreen onNavigateToPsychology={() => setActiveTab('psychology')} />
+              )}
+              {activeTab === 'psychology' && <PsychologyCenterScreen />}
               {activeTab === 'activity' && <ActivityScreen />}
               {activeTab === 'notification' && <NotificationScreen />}
               {activeTab === 'profile' && (
@@ -127,7 +152,7 @@ const MainAppContent: React.FC = () => {
       </main>
 
       {/* Floating AI Button */}
-      {!isAIOpen && !isSettingsOpen && !isShowcaseOpen && (
+      {!isAIOpen && activeTab !== 'ai' && !isSettingsOpen && !isShowcaseOpen && (
         <FloatingAIButton onOpenAIChat={() => setIsAIOpen(true)} />
       )}
 
@@ -140,7 +165,7 @@ const MainAppContent: React.FC = () => {
           activeTab={activeTab}
           onTabChange={(tab) => {
             if (tab === 'ai') {
-              setIsAIOpen(true);
+              setActiveTab('ai');
             } else {
               setActiveTab(tab);
             }
@@ -150,6 +175,7 @@ const MainAppContent: React.FC = () => {
     </AppShell>
   );
 };
+
 
 export default function App() {
   return (

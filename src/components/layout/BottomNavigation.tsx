@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Bot, Calendar, Bell, User } from 'lucide-react';
+import { Home, Bot, Smile, Brain, Baby, HeartPulse, Wallet, User } from 'lucide-react';
 import { MainTab } from '../../types/navigation';
 
 export interface BottomNavigationProps {
@@ -15,14 +15,12 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
 }) => {
   const tabs: Array<{ id: MainTab; label: string; icon: React.ReactNode; badge?: number }> = [
     { id: 'home', label: 'Home', icon: <Home className="w-5 h-5" /> },
+    { id: 'finance', label: 'Keuangan', icon: <Wallet className="w-5 h-5" /> },
+    { id: 'health', label: 'Health', icon: <HeartPulse className="w-5 h-5" /> },
+    { id: 'parenting', label: 'Parenting', icon: <Baby className="w-5 h-5" /> },
     { id: 'ai', label: 'Family AI', icon: <Bot className="w-5 h-5" /> },
-    { id: 'activity', label: 'Aktivitas', icon: <Calendar className="w-5 h-5" /> },
-    {
-      id: 'notification',
-      label: 'Notifikasi',
-      icon: <Bell className="w-5 h-5" />,
-      badge: notificationBadgeCount,
-    },
+    { id: 'mood', label: 'Mood AI', icon: <Smile className="w-5 h-5" /> },
+    { id: 'psychology', label: 'Psikologi', icon: <Brain className="w-5 h-5" /> },
     { id: 'profile', label: 'Profil', icon: <User className="w-5 h-5" /> },
   ];
 
