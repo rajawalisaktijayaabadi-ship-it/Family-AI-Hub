@@ -1,0 +1,6 @@
+{
+  "name": "FamilyAI Hub Indonesia Mobile Web Edition",
+  "description": "Mobile Web edition for FamilyAI Hub Indonesia featuring mobile-first design, luxury UI, splash screen, onboarding, authentication, family dashboard, offline support, and settings.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

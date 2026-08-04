@@ -1,0 +1,22 @@
+{
+  "name": "FamilyAI Hub Indonesia Mobile Web Edition",
+  "short_name": "FamilyAI Mobile",
+  "description": "Aplikasi Kecerdasan AI untuk Keluarga Indonesia",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F8FAFC",
+  "theme_color": "#2563EB",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://images.unsplash.com/photo-1511895426328-dc8714191300?w=192&auto=format&fit=crop&q=80",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://images.unsplash.com/photo-1511895426328-dc8714191300?w=512&auto=format&fit=crop&q=80",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
