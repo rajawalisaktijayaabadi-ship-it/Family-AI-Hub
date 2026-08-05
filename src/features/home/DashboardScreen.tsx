@@ -5,6 +5,7 @@ import { useWorkspaceStore } from '../../stores/useWorkspaceStore';
 import { useDashboardStore } from '../../stores/useDashboardStore';
 import { useNotificationStore } from '../../stores/useNotificationStore';
 import { useToastStore } from '../../stores/useToastStore';
+import { useUIStore } from '../../stores/useUIStore';
 import { INITIAL_DASHBOARD_CARDS } from '../../core/constants';
 import { DashboardCardItem } from '../../types/dashboard';
 import { CardDetailModal } from './CardDetailModal';
@@ -117,31 +118,33 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onOpenAI }) =>
     }
   };
 
+  const { openQuickInput } = useUIStore();
+
   const handleQuickAction = (actionKey: string, title: string) => {
     switch (actionKey) {
       case 'OPEN_AI_CHAT':
         onOpenAI();
         break;
       case 'OPEN_MOOD_MODAL':
-        addToast(`Membuka Modul ${title}...`, 'info');
+        openQuickInput('mood');
         break;
       case 'ADD_SCHEDULE_MODAL':
-        addToast('Membuka Formulir Tambah Jadwal Baru...', 'info');
+        openQuickInput('calendar');
         break;
       case 'ADD_NOTE_MODAL':
-        addToast('Membuka Catatan Keluarga...', 'info');
+        openQuickInput('memory');
         break;
       case 'ADD_EXPENSE_MODAL':
-        addToast('Membuka Pencatatan Pengeluaran...', 'info');
+        openQuickInput('finance');
         break;
       case 'OPEN_EMERGENCY_MODAL':
-        addToast('ALERT: Layanan Bantuan Darurat Dihubungi!', 'error');
+        openQuickInput('health');
         break;
       case 'NAVIGATE_FAMILY_WORKSPACE':
-        setIsWorkspaceModalOpen(true);
+        openQuickInput('member');
         break;
       default:
-        addToast(`Menjalankan pintasan: ${title}`, 'success');
+        openQuickInput('finance');
         break;
     }
   };

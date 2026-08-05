@@ -147,8 +147,15 @@ export const QUICK_COMMANDS = [
 ];
 
 export const DEFAULT_AI_SETTINGS: AISettingsModel = {
+  aiEnabled: true,
+  memoryEnabled: true,
+  contextEnabled: true,
+  personalizationEnabled: true,
+  provider: 'gemini',
+  modelName: 'gemini-3.6-flash',
   responseLength: 'sedang',
   language: 'id',
+  tone: 'ramah',
   creativity: 'seimbang',
   autoScroll: true,
   showSystemPrompt: true,

@@ -27,6 +27,14 @@ import { PsychologyCenterScreen } from './features/psychology/PsychologyCenterSc
 import { ParentingHomeScreen } from './features/parenting/ParentingHomeScreen';
 import { HealthHomeScreen } from './features/health/HealthHomeScreen';
 import { FinanceHomeScreen } from './features/finance/FinanceHomeScreen';
+import { ProtectionHomeScreen } from './features/protection/ProtectionHomeScreen';
+import { EducationHomeScreen } from './features/education/EducationHomeScreen';
+import { CalendarHomeScreen } from './features/calendar/CalendarHomeScreen';
+import { SmartHomeScreen } from './features/smart_home/SmartHomeScreen';
+import { FamilySafetyScreen } from './features/family_safety/FamilySafetyScreen';
+import { MemoriesHomeScreen } from './features/memories/MemoriesHomeScreen';
+import { AnalyticsHomeScreen } from './features/analytics/AnalyticsHomeScreen';
+import { UniversalDataInputModal } from './components/common/UniversalDataInputModal';
 import { useUIStore } from './stores/useUIStore';
 
 const MainAppContent: React.FC = () => {
@@ -97,8 +105,22 @@ const MainAppContent: React.FC = () => {
           title={
             activeTab === 'home'
               ? 'FamilyAI Hub'
+              : activeTab === 'analytics'
+              ? 'Dashboard Analytics & Intelligence'
+              : activeTab === 'memories'
+              ? 'Family Memories & AI Gallery'
+              : activeTab === 'smart_home'
+              ? 'Smart Home & Mesh IoT'
+              : activeTab === 'family_safety'
+              ? 'Family Safety & SOS Center'
+              : activeTab === 'calendar'
+              ? 'Smart Calendar & Planner'
+              : activeTab === 'education'
+              ? 'AI Education & Learning'
               : activeTab === 'finance'
               ? 'Finance AI & Budget'
+              : activeTab === 'protection'
+              ? 'Family Protection & Vault'
               : activeTab === 'health'
               ? 'AI Health & Medical'
               : activeTab === 'parenting'
@@ -131,7 +153,14 @@ const MainAppContent: React.FC = () => {
           ) : (
             <>
               {activeTab === 'home' && <DashboardScreen onOpenAI={() => setIsAIOpen(true)} />}
+              {activeTab === 'analytics' && <AnalyticsHomeScreen />}
+              {activeTab === 'memories' && <MemoriesHomeScreen />}
+              {activeTab === 'smart_home' && <SmartHomeScreen />}
+              {activeTab === 'family_safety' && <FamilySafetyScreen />}
+              {activeTab === 'calendar' && <CalendarHomeScreen />}
+              {activeTab === 'education' && <EducationHomeScreen />}
               {activeTab === 'finance' && <FinanceHomeScreen />}
+              {activeTab === 'protection' && <ProtectionHomeScreen />}
               {activeTab === 'health' && <HealthHomeScreen />}
               {activeTab === 'parenting' && <ParentingHomeScreen />}
               {activeTab === 'ai' && (
@@ -158,6 +187,9 @@ const MainAppContent: React.FC = () => {
 
       {/* AI Assistant Chat Modal */}
       <AIAssistantModal isOpen={isAIOpen} onClose={() => setIsAIOpen(false)} />
+
+      {/* Universal Multi-Module Real-Time Data Input Modal */}
+      <UniversalDataInputModal />
 
       {/* Bottom Navigation */}
       {!isSettingsOpen && !isShowcaseOpen && (

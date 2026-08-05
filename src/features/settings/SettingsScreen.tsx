@@ -21,11 +21,18 @@ import {
   ChevronRight,
   Clock,
   ShieldAlert,
+  CreditCard,
+  Zap,
 } from 'lucide-react';
 import { useSettingsStore } from '../../stores/useSettingsStore';
 import { useToastStore } from '../../stores/useToastStore';
 import { DeviceManagementModal } from './DeviceManagementModal';
 import { HelpCenterModal } from './HelpCenterModal';
+import { SaaSPlatformHub } from '../subscription/SaaSPlatformHub';
+import { IntegrationHubScreen } from '../integration/IntegrationHubScreen';
+import { EnterpriseSecurityHub } from '../security/EnterpriseSecurityHub';
+import { CommercialLaunchHub } from '../commercial/CommercialLaunchHub';
+import { Rocket } from 'lucide-react';
 
 interface SettingsScreenProps {
   onBack: () => void;
@@ -39,6 +46,10 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack }) => {
 
   const [isDeviceModalOpen, setIsDeviceModalOpen] = useState(false);
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
+  const [isSaaSModalOpen, setIsSaaSModalOpen] = useState(false);
+  const [isIntegrationModalOpen, setIsIntegrationModalOpen] = useState(false);
+  const [isSecurityHubOpen, setIsSecurityHubOpen] = useState(false);
+  const [isCommercialHubOpen, setIsCommercialHubOpen] = useState(false);
 
   // PIN modal simulation
   const [pinInput, setPinInput] = useState('');
@@ -100,8 +111,9 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack }) => {
           <label className="text-xs font-bold text-slate-600 dark:text-slate-400">
             Mode Tema Tampilan:
           </label>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {[
+              { id: 'auto', label: 'Otomatis (Siang Gelap)', icon: Clock },
               { id: 'light', label: 'Terang', icon: Sun },
               { id: 'dark', label: 'Gelap', icon: Moon },
               { id: 'system', label: 'Sistem', icon: Smartphone },
@@ -112,14 +124,14 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack }) => {
                 <button
                   key={mode.id}
                   onClick={() => setTheme(mode.id as any)}
-                  className={`p-2.5 rounded-2xl text-xs font-bold flex flex-col items-center gap-1.5 transition-all ${
+                  className={`p-2.5 rounded-2xl text-xs font-bold flex flex-col items-center justify-center gap-1.5 transition-all text-center ${
                     active
                       ? 'bg-indigo-600 text-white shadow-md'
                       : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
                   }`}
                 >
-                  <Icon className="w-4 h-4" />
-                  <span>{mode.label}</span>
+                  <Icon className="w-4 h-4 shrink-0" />
+                  <span className="leading-tight">{mode.label}</span>
                 </button>
               );
             })}
@@ -374,6 +386,86 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack }) => {
       {/* Quick Navigation Cards for Devices & Help Center */}
       <div className="space-y-2">
         <button
+          onClick={() => setIsCommercialHubOpen(true)}
+          className="w-full p-4 bg-gradient-to-r from-amber-500 via-orange-600 to-slate-900 rounded-2xl text-white shadow-md hover:opacity-95 transition-all flex items-center justify-between text-xs"
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-white/20 rounded-xl backdrop-blur-md">
+              <Rocket className="w-5 h-5 text-white" />
+            </div>
+            <div className="text-left">
+              <span className="font-extrabold text-white block">
+                Commercial Launch, BI Analytics & Support Center
+              </span>
+              <span className="text-[10px] text-amber-100 font-medium">
+                Pusat Dukungan, Analytics BI, Onboarding & PWA Distribution
+              </span>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-white" />
+        </button>
+
+        <button
+          onClick={() => setIsSecurityHubOpen(true)}
+          className="w-full p-4 bg-gradient-to-r from-emerald-600 via-teal-700 to-slate-900 rounded-2xl text-white shadow-md hover:opacity-95 transition-all flex items-center justify-between text-xs"
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-white/20 rounded-xl backdrop-blur-md">
+              <ShieldCheck className="w-5 h-5 text-white" />
+            </div>
+            <div className="text-left">
+              <span className="font-extrabold text-white block">
+                Enterprise Security, UU PDP Privasi & DevOps Hub
+              </span>
+              <span className="text-[10px] text-emerald-100 font-medium">
+                UU PDP No. 27/2022, Prompt Defender, Monitoring & Test QA
+              </span>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-white" />
+        </button>
+
+        <button
+          onClick={() => setIsIntegrationModalOpen(true)}
+          className="w-full p-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-slate-900 rounded-2xl text-white shadow-md hover:opacity-95 transition-all flex items-center justify-between text-xs"
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-white/20 rounded-xl backdrop-blur-md">
+              <Zap className="w-5 h-5 text-white" />
+            </div>
+            <div className="text-left">
+              <span className="font-extrabold text-white block">
+                Integration Hub & Smart Services Indonesia
+              </span>
+              <span className="text-[10px] text-indigo-100 font-medium">
+                Peta Maps/OSM, Cuaca BMKG, Push FCM & AI Automasi
+              </span>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-white" />
+        </button>
+
+        <button
+          onClick={() => setIsSaaSModalOpen(true)}
+          className="w-full p-4 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl text-white shadow-md hover:opacity-95 transition-all flex items-center justify-between text-xs"
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-white/20 rounded-xl backdrop-blur-md">
+              <CreditCard className="w-5 h-5 text-white" />
+            </div>
+            <div className="text-left">
+              <span className="font-extrabold text-white block">
+                SaaS Enterprise Platform & Billing Indonesia
+              </span>
+              <span className="text-[10px] text-teal-100 font-medium">
+                Tenant, Paket Langganan, Gateway Midtrans/Xendit/QRIS & Invoice
+              </span>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-white" />
+        </button>
+
+        <button
           onClick={() => setIsDeviceModalOpen(true)}
           className="w-full p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs hover:border-indigo-300 transition-all flex items-center justify-between text-xs"
         >
@@ -436,6 +528,26 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack }) => {
         isOpen={isHelpModalOpen}
         onClose={() => setIsHelpModalOpen(false)}
       />
+      <SaaSPlatformHub
+        isOpen={isSaaSModalOpen}
+        onClose={() => setIsSaaSModalOpen(false)}
+      />
+      <IntegrationHubScreen
+        isOpen={isIntegrationModalOpen}
+        onClose={() => setIsIntegrationModalOpen(false)}
+      />
+
+      {isSecurityHubOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 overflow-y-auto">
+          <EnterpriseSecurityHub onClose={() => setIsSecurityHubOpen(false)} />
+        </div>
+      )}
+
+      {isCommercialHubOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 overflow-y-auto">
+          <CommercialLaunchHub onClose={() => setIsCommercialHubOpen(false)} />
+        </div>
+      )}
     </div>
   );
 };

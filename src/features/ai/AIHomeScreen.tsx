@@ -22,6 +22,8 @@ import {
   TrendingUp,
 } from 'lucide-react';
 
+import { AIVoiceAvatarSection } from './tabs/AIVoiceAvatarSection';
+
 interface AIHomeScreenProps {
   onOpenChat: () => void;
   onOpenPrompts: () => void;
@@ -47,6 +49,7 @@ export const AIHomeScreen: React.FC<AIHomeScreenProps> = ({
     setActiveConversationId,
     sendMessage,
     setActiveAITab,
+    settings,
   } = useAIStore();
 
   const suggestedQuestions = RecommendationService.getSuggestedQuestions('Kepala Keluarga');
@@ -70,9 +73,9 @@ export const AIHomeScreen: React.FC<AIHomeScreenProps> = ({
   };
 
   return (
-    <div className="p-4 space-y-4 pb-28 font-sans max-w-md mx-auto">
+    <div className="space-y-4 pb-20 font-sans max-w-md mx-auto">
       {/* 1. Header & AI Status Bar */}
-      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-teal-600 rounded-3xl p-4 text-white shadow-xl relative overflow-hidden">
+      <div className="bg-gradient-to-r from-emerald-700 via-teal-700 to-cyan-700 rounded-3xl p-4 text-white shadow-xl relative overflow-hidden">
         <div className="relative z-10 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
@@ -85,7 +88,7 @@ export const AIHomeScreen: React.FC<AIHomeScreenProps> = ({
                 </h2>
                 <p className="text-[10px] text-teal-200 font-bold flex items-center gap-1">
                   <ShieldCheck className="w-3 h-3 text-teal-300" />
-                  Privasi Terjaga • Abstraction Layer Ready
+                  Privasi Terjaga • Google Gemini Production AI
                 </p>
               </div>
             </div>
@@ -101,19 +104,22 @@ export const AIHomeScreen: React.FC<AIHomeScreenProps> = ({
 
           <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-3 flex items-center justify-between">
             <div className="flex items-center gap-2 text-xs font-semibold text-white">
-              <span className="w-2.5 h-2.5 bg-teal-400 rounded-full animate-pulse" />
-              <span>Mock AI Engine Active</span>
+              <span className="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse" />
+              <span>Google Gemini 3.6 Flash Active</span>
             </div>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-500/30 text-teal-200 border border-teal-400/30">
-              Offline Cache Ready
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/30 text-emerald-100 border border-emerald-400/30">
+              RAG & Memory Engine On
             </span>
           </div>
 
-          <p className="text-xs text-blue-100 leading-relaxed font-medium">
-            Halo! Saya siap membantu menjawab ide menu masakan, analisis keuangan, tips parenting, dan agenda rutin keluarga Anda.
+          <p className="text-xs text-emerald-100 leading-relaxed font-medium">
+            Halo! Saya asisten AI keluarga didukung Google Gemini 3.6 Flash. Siap membantu menjawab ide menu, kesehatan, analisis keuangan, dan agenda rutin keluarga.
           </p>
         </div>
       </div>
+
+      {/* Voice & Avatar Interactive Foundation */}
+      <AIVoiceAvatarSection />
 
       {/* 2. Action Grid Navigation Bar */}
       <div className="grid grid-cols-4 gap-2">

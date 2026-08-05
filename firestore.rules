@@ -1,0 +1,98 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ==========================================
+    // EIGHT PILLARS HARDENED SECURITY RULES
+    // Master Gate & Schema Isolation Layer
+    // ==========================================
+
+    // Helper Functions (RBAC & Auth Verification)
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isUser(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isWorkspaceMember(workspaceId) {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/workspaces/$(workspaceId)/members/$(request.auth.uid));
+    }
+
+    function isWorkspaceOwner(workspaceId) {
+      return isAuthenticated() && 
+        get(/databases/$(database)/documents/workspaces/$(workspaceId)/members/$(request.auth.uid)).data.role == 'owner';
+    }
+
+    function isSuperAdmin() {
+      return isAuthenticated() && 
+        request.auth.token.role == 'super_admin';
+    }
+
+    // Validation Blueprints
+    function isValidTimestamp(ts) {
+      return ts is timestamp || ts is string;
+    }
+
+    // Default Lockout Master Gate
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Users Collection Isolation
+    match /users/{userId} {
+      allow read: if isUser(userId) || isSuperAdmin();
+      allow create: if isUser(userId) && request.resource.data.email is string;
+      allow update: if isUser(userId) && request.resource.data.keys().hasAll(['updatedAt']);
+      allow delete: if isUser(userId) || isSuperAdmin();
+
+      match /consents/{consentId} {
+        allow read, write: if isUser(userId);
+      }
+    }
+
+    // Workspace & Multi-Tenant Data Isolation
+    match /workspaces/{workspaceId} {
+      allow read: if isWorkspaceMember(workspaceId) || isSuperAdmin();
+      allow create: if isAuthenticated();
+      allow update: if isWorkspaceOwner(workspaceId) || isSuperAdmin();
+      allow delete: if isWorkspaceOwner(workspaceId);
+
+      match /members/{memberId} {
+        allow read: if isWorkspaceMember(workspaceId);
+        allow write: if isWorkspaceOwner(workspaceId) || isSuperAdmin();
+      }
+
+      match /memory_documents/{docId} {
+        allow read: if isWorkspaceMember(workspaceId);
+        allow create, update: if isWorkspaceMember(workspaceId);
+        allow delete: if isWorkspaceOwner(workspaceId);
+      }
+
+      match /billing/{billingId} {
+        allow read: if isWorkspaceMember(workspaceId);
+        allow write: if isWorkspaceOwner(workspaceId) || isSuperAdmin();
+      }
+
+      match /automation_rules/{ruleId} {
+        allow read, write: if isWorkspaceMember(workspaceId);
+      }
+    }
+
+    // Audit Logs (Write-Only Append Log for Security Auditing)
+    match /audit_logs/{logId} {
+      allow read: if isSuperAdmin();
+      allow create: if isAuthenticated() && request.resource.data.actorId == request.auth.uid;
+      allow update, delete: if false; // Immutable Audit Logs
+    }
+
+    // Subscriptions & Payment Records
+    match /subscriptions/{subId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow write: if isSuperAdmin();
+    }
+  }
+}

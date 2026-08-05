@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAIStore } from '../../stores/useAIStore';
+import { useAIStore, AITabType } from '../../stores/useAIStore';
 import { AIHomeScreen } from './AIHomeScreen';
 import { AIChatScreen } from './AIChatScreen';
 import { ConversationManagerModal } from './ConversationManagerModal';
@@ -9,6 +9,10 @@ import { AIHistoryModal } from './AIHistoryModal';
 import { AIFavoritesModal } from './AIFavoritesModal';
 import { AISearchModal } from './AISearchModal';
 import { AISettingsModal } from './AISettingsModal';
+import { AIMemoryTab } from './tabs/AIMemoryTab';
+import { AIPrivacyConsentTab } from './tabs/AIPrivacyConsentTab';
+import { AIInsightCenterTab } from './tabs/AIInsightCenterTab';
+import { AISettingsTab } from './tabs/AISettingsTab';
 
 import {
   Home,
@@ -22,6 +26,9 @@ import {
   Bot,
   ChevronLeft,
   FileText,
+  Brain,
+  ShieldCheck,
+  Sparkles,
 } from 'lucide-react';
 
 interface AIFamilyAssistantHubProps {
@@ -61,15 +68,15 @@ export const AIFamilyAssistantHub: React.FC<AIFamilyAssistantHubProps> = ({ isOp
             <ChevronLeft className="w-5 h-5" />
           </button>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-teal-400 text-white flex items-center justify-center font-bold shadow-xs">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-cyan-500 text-white flex items-center justify-center font-bold shadow-xs">
               <Bot className="w-4 h-4" />
             </div>
             <div>
               <h2 className="text-xs font-extrabold font-heading text-slate-900 dark:text-white leading-tight">
                 AI Family Assistant
               </h2>
-              <span className="text-[10px] text-teal-600 dark:text-teal-400 font-bold block">
-                FamilyAI Hub Indonesia
+              <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold block">
+                Google Gemini Production Engine
               </span>
             </div>
           </div>
@@ -84,8 +91,12 @@ export const AIFamilyAssistantHub: React.FC<AIFamilyAssistantHubProps> = ({ isOp
             <Search className="w-4 h-4" />
           </button>
           <button
-            onClick={() => setIsSettingsModalOpen(true)}
-            className="p-2 rounded-xl text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition"
+            onClick={() => setActiveAITab('settings')}
+            className={`p-2 rounded-xl transition ${
+              activeAITab === 'settings'
+                ? 'text-emerald-600 bg-emerald-50'
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
             title="Pengaturan"
           >
             <Sliders className="w-4 h-4" />
@@ -94,14 +105,14 @@ export const AIFamilyAssistantHub: React.FC<AIFamilyAssistantHubProps> = ({ isOp
       </div>
 
       {/* Main Viewport */}
-      <div className="flex-1 overflow-y-auto no-scrollbar relative">
+      <div className="flex-1 overflow-y-auto no-scrollbar relative p-4">
         {activeAITab === 'home' && (
           <AIHomeScreen
             onOpenChat={() => setActiveAITab('chat')}
             onOpenPrompts={() => setIsPromptsModalOpen(true)}
             onOpenHistory={() => setIsHistoryModalOpen(true)}
             onOpenFavorites={() => setIsFavoritesModalOpen(true)}
-            onOpenSettings={() => setIsSettingsModalOpen(true)}
+            onOpenSettings={() => setActiveAITab('settings')}
             onOpenSearch={() => setIsSearchModalOpen(true)}
           />
         )}
@@ -109,9 +120,14 @@ export const AIFamilyAssistantHub: React.FC<AIFamilyAssistantHubProps> = ({ isOp
         {activeAITab === 'chat' && (
           <AIChatScreen
             onBack={() => setActiveAITab('home')}
-            onOpenSettings={() => setIsSettingsModalOpen(true)}
+            onOpenSettings={() => setActiveAITab('settings')}
           />
         )}
+
+        {activeAITab === 'insight' && <AIInsightCenterTab />}
+        {activeAITab === 'memory' && <AIMemoryTab />}
+        {activeAITab === 'privacy' && <AIPrivacyConsentTab />}
+        {activeAITab === 'settings' && <AISettingsTab />}
       </div>
 
       {/* Sub-navigation Bottom Bar inside Hub */}
@@ -119,7 +135,7 @@ export const AIFamilyAssistantHub: React.FC<AIFamilyAssistantHubProps> = ({ isOp
         <button
           onClick={() => setActiveAITab('home')}
           className={`flex flex-col items-center gap-0.5 text-[10px] transition ${
-            activeAITab === 'home' ? 'text-blue-600 dark:text-blue-400' : 'hover:text-slate-700'
+            activeAITab === 'home' ? 'text-emerald-600 font-extrabold' : 'hover:text-slate-700'
           }`}
         >
           <Home className="w-4 h-4" />
@@ -129,35 +145,41 @@ export const AIFamilyAssistantHub: React.FC<AIFamilyAssistantHubProps> = ({ isOp
         <button
           onClick={() => setActiveAITab('chat')}
           className={`flex flex-col items-center gap-0.5 text-[10px] transition ${
-            activeAITab === 'chat' ? 'text-blue-600 dark:text-blue-400' : 'hover:text-slate-700'
+            activeAITab === 'chat' ? 'text-emerald-600 font-extrabold' : 'hover:text-slate-700'
           }`}
         >
           <MessageSquare className="w-4 h-4" />
-          <span>Chat UI</span>
+          <span>Chat AI</span>
         </button>
 
         <button
-          onClick={() => setIsConvModalOpen(true)}
-          className="flex flex-col items-center gap-0.5 text-[10px] hover:text-slate-700 transition"
+          onClick={() => setActiveAITab('insight')}
+          className={`flex flex-col items-center gap-0.5 text-[10px] transition ${
+            activeAITab === 'insight' ? 'text-emerald-600 font-extrabold' : 'hover:text-slate-700'
+          }`}
         >
-          <Bot className="w-4 h-4" />
-          <span>Obrolan</span>
+          <Sparkles className="w-4 h-4" />
+          <span>Insight</span>
         </button>
 
         <button
-          onClick={() => setIsPromptsModalOpen(true)}
-          className="flex flex-col items-center gap-0.5 text-[10px] hover:text-slate-700 transition"
+          onClick={() => setActiveAITab('memory')}
+          className={`flex flex-col items-center gap-0.5 text-[10px] transition ${
+            activeAITab === 'memory' ? 'text-emerald-600 font-extrabold' : 'hover:text-slate-700'
+          }`}
         >
-          <Zap className="w-4 h-4 text-indigo-500" />
-          <span>Prompt</span>
+          <Brain className="w-4 h-4" />
+          <span>Memory</span>
         </button>
 
         <button
-          onClick={() => setIsTemplatesModalOpen(true)}
-          className="flex flex-col items-center gap-0.5 text-[10px] hover:text-slate-700 transition"
+          onClick={() => setActiveAITab('privacy')}
+          className={`flex flex-col items-center gap-0.5 text-[10px] transition ${
+            activeAITab === 'privacy' ? 'text-emerald-600 font-extrabold' : 'hover:text-slate-700'
+          }`}
         >
-          <FileText className="w-4 h-4 text-purple-500" />
-          <span>Template</span>
+          <ShieldCheck className="w-4 h-4" />
+          <span>Privasi</span>
         </button>
       </div>
 

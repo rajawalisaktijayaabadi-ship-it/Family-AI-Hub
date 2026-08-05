@@ -7,15 +7,31 @@ import {
   AISettingsModel,
   PromptCategory,
   Attachment,
+  AIMemoryModel,
+  PrivacyConsentModel,
+  AIUsageModel,
 } from '../types/ai';
 import { ConversationService } from '../services/ConversationService';
 import { PromptService } from '../services/PromptService';
 import { AIRepository } from '../repositories/AIRepository';
-import { MockAIService } from '../services/MockAIService';
+import { GeminiService } from '../services/ai/GeminiService';
+import { AIMemoryService } from '../services/ai/AIMemoryService';
+
+export type AITabType =
+  | 'home'
+  | 'chat'
+  | 'conversations'
+  | 'prompts'
+  | 'history'
+  | 'favorites'
+  | 'settings'
+  | 'insight'
+  | 'memory'
+  | 'privacy';
 
 interface AIState {
   // Navigation & View Mode
-  activeAITab: 'home' | 'chat' | 'conversations' | 'prompts' | 'history' | 'favorites' | 'settings';
+  activeAITab: AITabType;
 
   // State data
   conversations: ConversationModel[];
@@ -24,6 +40,9 @@ interface AIState {
   prompts: PromptModel[];
   favorites: FavoriteItemModel[];
   settings: AISettingsModel;
+  memories: AIMemoryModel[];
+  privacyConsent: PrivacyConsentModel;
+  usageStats: AIUsageModel;
 
   // UI States
   isTyping: boolean;
@@ -32,7 +51,7 @@ interface AIState {
   selectedCategory: PromptCategory | 'Semua';
 
   // Actions
-  setActiveAITab: (tab: 'home' | 'chat' | 'conversations' | 'prompts' | 'history' | 'favorites' | 'settings') => void;
+  setActiveAITab: (tab: AITabType) => void;
   loadInitialData: () => void;
   setActiveConversationId: (id: string | null) => void;
   createNewConversation: (title?: string, category?: PromptCategory | 'Umum') => string;
@@ -54,6 +73,13 @@ interface AIState {
   removeFavorite: (id: string) => void;
   clearHistory: () => void;
   resetChat: () => void;
+
+  // Memory & Privacy Actions
+  addMemory: (key: string, value: string, category?: PromptCategory | 'General') => void;
+  togglePinMemory: (id: string) => void;
+  deleteMemory: (id: string) => void;
+  clearAllMemories: () => void;
+  updatePrivacyConsent: (consent: Partial<PrivacyConsentModel>) => void;
 }
 
 export const useAIStore = create<AIState>((set, get) => ({
@@ -64,6 +90,21 @@ export const useAIStore = create<AIState>((set, get) => ({
   prompts: [],
   favorites: [],
   settings: AIRepository.getSettings(),
+  memories: AIMemoryService.getMemories(),
+  privacyConsent: {
+    userId: 'usr_default',
+    aiDataUsageAccepted: true,
+    memoryCollectionAccepted: true,
+    personalizationAccepted: true,
+    acceptedAt: new Date().toISOString(),
+  },
+  usageStats: {
+    userId: 'usr_default',
+    totalRequestsToday: 14,
+    tokenCountToday: 3240,
+    dailyLimit: 100,
+    resetDate: new Date().toISOString(),
+  },
   isTyping: false,
   streamingText: '',
   searchQuery: '',
@@ -76,6 +117,7 @@ export const useAIStore = create<AIState>((set, get) => ({
     const prompts = PromptService.getAllPrompts();
     const favorites = AIRepository.getFavorites();
     const settings = AIRepository.getSettings();
+    const memories = AIMemoryService.getMemories();
 
     const initialActiveId = convs.length > 0 ? convs[0].id : null;
     const initialMessages = initialActiveId ? ConversationService.getMessages(initialActiveId) : [];
@@ -87,6 +129,7 @@ export const useAIStore = create<AIState>((set, get) => ({
       prompts,
       favorites,
       settings,
+      memories,
     });
   },
 
@@ -99,7 +142,7 @@ export const useAIStore = create<AIState>((set, get) => ({
     set({ activeConversationId: id, messages: msgs, activeAITab: 'chat' });
   },
 
-  createNewConversation: (title = 'Obrolan Keluarga Baru', category = 'Umum') => {
+  createNewConversation: (title = 'Obrolan AI Keluarga', category = 'Umum') => {
     const newConv = ConversationService.createNewConversation(title, category);
     const updatedConvs = ConversationService.getAllConversations();
     set({
@@ -112,7 +155,7 @@ export const useAIStore = create<AIState>((set, get) => ({
   },
 
   sendMessage: async (text, attachments = [], promptId) => {
-    const { activeConversationId, createNewConversation, messages } = get();
+    const { activeConversationId, createNewConversation, settings, usageStats } = get();
     let convId = activeConversationId;
 
     if (!convId) {
@@ -121,6 +164,9 @@ export const useAIStore = create<AIState>((set, get) => ({
         'Umum'
       );
     }
+
+    const currentConv = get().conversations.find((c) => c.id === convId);
+    const category = currentConv?.category || 'Umum';
 
     const userMsg: MessageModel = {
       id: `m_${Date.now()}`,
@@ -141,20 +187,17 @@ export const useAIStore = create<AIState>((set, get) => ({
       conversations: ConversationService.getAllConversations(),
     });
 
-    // Generate AI response
+    // Call Production Gemini AI Service
     try {
-      const response = await MockAIService.generateResponse(
-        text,
-        {
-          familyName: 'Keluarga Rahardjo',
-          memberCount: 4,
-          activeRole: 'Kepala Keluarga',
-          attachments,
-        },
-        (chunk) => {
+      const response = await GeminiService.generateAssistantResponse(text, {
+        category,
+        language: settings.language,
+        tone: settings.tone,
+        currentScreen: 'chat',
+        onStreamChunk: (chunk) => {
           set({ streamingText: chunk });
-        }
-      );
+        },
+      });
 
       const aiMsg: MessageModel = {
         id: `m_${Date.now()}_ai`,
@@ -162,11 +205,7 @@ export const useAIStore = create<AIState>((set, get) => ({
         sender: 'assistant',
         text: response.text,
         timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
-        responseType: response.responseType,
-        metadata: {
-          checklistItems: response.checklistItems,
-          tableData: response.tableData,
-        },
+        responseType: 'markdown',
       };
 
       ConversationService.addMessage(convId, aiMsg);
@@ -176,9 +215,14 @@ export const useAIStore = create<AIState>((set, get) => ({
         isTyping: false,
         streamingText: '',
         conversations: ConversationService.getAllConversations(),
+        usageStats: {
+          ...usageStats,
+          totalRequestsToday: usageStats.totalRequestsToday + 1,
+          tokenCountToday: usageStats.tokenCountToday + Math.round(text.length * 1.5),
+        },
       });
     } catch (err) {
-      console.error('AI response error:', err);
+      console.error('Gemini production response error:', err);
       set({ isTyping: false, streamingText: '' });
     }
   },
@@ -187,7 +231,6 @@ export const useAIStore = create<AIState>((set, get) => ({
     const { messages, sendMessage } = get();
     if (messages.length === 0) return;
 
-    // Find last user message
     const lastUserMsg = [...messages].reverse().find((m) => m.sender === 'user');
     if (lastUserMsg) {
       await sendMessage(lastUserMsg.text, lastUserMsg.attachments, lastUserMsg.metadata?.promptId);
@@ -260,7 +303,7 @@ export const useAIStore = create<AIState>((set, get) => ({
   },
 
   addFavorite: (item) => {
-    const fav = AIRepository.addFavorite(item);
+    AIRepository.addFavorite(item);
     set({ favorites: AIRepository.getFavorites() });
   },
 
@@ -284,7 +327,41 @@ export const useAIStore = create<AIState>((set, get) => ({
     if (activeConversationId) {
       ConversationService.deleteConversation(activeConversationId);
     }
-    const newId = get().createNewConversation('Obrolan Baru', 'Umum');
+    const newId = get().createNewConversation('Obrolan AI Baru', 'Umum');
     set({ activeConversationId: newId, messages: [], activeAITab: 'chat' });
+  },
+
+  // Memory & Privacy Actions
+  addMemory: (key, value, category = 'General') => {
+    const memory = AIMemoryService.addMemory({
+      userId: 'usr_default',
+      familyId: 'fam_rahardjo',
+      category,
+      key,
+      value,
+      isPinned: true,
+      confidenceScore: 0.95,
+    });
+    set({ memories: AIMemoryService.getMemories() });
+  },
+
+  togglePinMemory: (id) => {
+    const updated = AIMemoryService.togglePinMemory(id);
+    set({ memories: updated });
+  },
+
+  deleteMemory: (id) => {
+    const updated = AIMemoryService.deleteMemory(id);
+    set({ memories: updated });
+  },
+
+  clearAllMemories: () => {
+    AIMemoryService.clearAllMemories();
+    set({ memories: [] });
+  },
+
+  updatePrivacyConsent: (newConsent) => {
+    const updated = { ...get().privacyConsent, ...newConsent };
+    set({ privacyConsent: updated });
   },
 }));

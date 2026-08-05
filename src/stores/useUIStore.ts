@@ -63,6 +63,12 @@ interface UIState {
   // Showcase Demo View State
   isShowcaseOpen: boolean;
   setShowcaseOpen: (open: boolean) => void;
+
+  // Universal Quick Data Input Modal State
+  isQuickInputOpen: boolean;
+  quickInputCategory: string;
+  openQuickInput: (category?: string) => void;
+  closeQuickInput: () => void;
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -121,4 +127,10 @@ export const useUIStore = create<UIState>((set) => ({
 
   isShowcaseOpen: false,
   setShowcaseOpen: (open) => set({ isShowcaseOpen: open }),
+
+  isQuickInputOpen: false,
+  quickInputCategory: 'finance',
+  openQuickInput: (category = 'finance') =>
+    set({ isQuickInputOpen: true, quickInputCategory: category }),
+  closeQuickInput: () => set({ isQuickInputOpen: false }),
 }));

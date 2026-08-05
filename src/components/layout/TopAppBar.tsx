@@ -1,8 +1,10 @@
 import React from 'react';
-import { Sparkles, Bell, ArrowLeft, SlidersHorizontal } from 'lucide-react';
+import { Sparkles, Bell, ArrowLeft, SlidersHorizontal, Sun, Moon, PlusCircle } from 'lucide-react';
 import { IconButton } from '../ui/IconButton';
 import { Badge } from '../ui/Badge';
 import { useAuth } from '../../providers/AuthProvider';
+import { useTheme } from '../../providers/ThemeProvider';
+import { useUIStore } from '../../stores/useUIStore';
 
 export interface TopAppBarProps {
   title?: string;
@@ -26,6 +28,12 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
   showAIButton = true,
 }) => {
   const { user } = useAuth();
+  const { theme, setTheme, isDark } = useTheme();
+  const { openQuickInput } = useUIStore();
+
+  const toggleTheme = () => {
+    setTheme(isDark ? 'light' : 'dark');
+  };
 
   return (
     <header className="sticky top-0 z-30 w-full glass-panel border-b border-slate-200/50 dark:border-slate-800/80 px-4 py-3 pt-safe transition-all">
@@ -65,6 +73,25 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
 
         {/* Right: Actions */}
         <div className="flex items-center gap-1.5">
+          {/* Quick Universal Input Button */}
+          <button
+            onClick={() => openQuickInput()}
+            className="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white flex items-center gap-1 text-xs font-bold shadow-sm transition active-press"
+            title="Tambah Data Multi-Modul"
+          >
+            <PlusCircle className="w-4 h-4" />
+            <span>+ Input Data</span>
+          </button>
+
+          {/* Quick Dark/Light Mode Toggle */}
+          <IconButton
+            icon={isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-700" />}
+            size="sm"
+            variant="ghost"
+            onClick={toggleTheme}
+            ariaLabel={isDark ? 'Beralih ke Mode Terang' : 'Beralih ke Mode Gelap'}
+          />
+
           {onOpenShowcase && (
             <IconButton
               icon={<SlidersHorizontal className="w-4 h-4 text-slate-700 dark:text-slate-300" />}

@@ -94,15 +94,132 @@ export interface FavoriteItemModel {
 }
 
 export interface AISettingsModel {
+  aiEnabled: boolean;
+  memoryEnabled: boolean;
+  contextEnabled: boolean;
+  personalizationEnabled: boolean;
+  provider: 'gemini' | 'openai' | 'claude';
+  modelName: string;
   responseLength: 'ringkas' | 'sedang' | 'detail';
   language: 'id' | 'en';
+  tone: 'ramah' | 'profesional' | 'santai' | 'edukatif';
   creativity: 'terfokus' | 'seimbang' | 'kreatif';
   autoScroll: boolean;
   showSystemPrompt: boolean;
   saveOffline: boolean;
 }
 
+export interface AIMemoryModel {
+  id: string;
+  userId: string;
+  familyId: string;
+  category: PromptCategory | 'General';
+  key: string;
+  value: string;
+  isPinned: boolean;
+  confidenceScore: number;
+  sourceConversationId?: string;
+  expiresAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AIContextModel {
+  userId: string;
+  familyId: string;
+  familyName: string;
+  memberCount: number;
+  currentScreen?: string;
+  recentActivities: string[];
+  healthOverview?: { score: number; notes: string };
+  financeOverview?: { monthlyBudget: number; spent: number };
+  educationOverview?: { activeCourses: number; progress: number };
+  moodOverview?: { dominantMood: string; averageScore: number };
+  smartHomeStatus?: { activeDevices: number; alerts: number };
+  safetyStatus?: { level: string; activeCheckins: number };
+  pinnedMemories: AIMemoryModel[];
+  updatedAt: string;
+}
+
+export interface AIHistoryModel {
+  id: string;
+  conversationId: string;
+  userId: string;
+  promptText: string;
+  responseText: string;
+  tokensUsed: number;
+  latencyMs: number;
+  timestamp: string;
+}
+
+export interface AIPromptModel extends PromptModel {}
+export interface AIConversationModel extends ConversationModel {}
+
+export interface AIUsageModel {
+  userId: string;
+  totalRequestsToday: number;
+  tokenCountToday: number;
+  dailyLimit: number;
+  resetDate: string;
+}
+
+export interface AIFeedbackModel {
+  id: string;
+  messageId: string;
+  userId: string;
+  rating: 'thumbs_up' | 'thumbs_down';
+  comment?: string;
+  createdAt: string;
+}
+
+export interface RAGSearchResult {
+  id: string;
+  title: string;
+  content: string;
+  sourceModule: string;
+  score: number;
+  citationMetadata?: {
+    date?: string;
+    author?: string;
+    url?: string;
+  };
+}
+
+export interface PrivacyConsentModel {
+  userId: string;
+  aiDataUsageAccepted: boolean;
+  memoryCollectionAccepted: boolean;
+  personalizationAccepted: boolean;
+  acceptedAt?: string;
+}
+
 // Zod Schemas
+export const AIMemorySchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  familyId: z.string(),
+  category: z.string(),
+  key: z.string(),
+  value: z.string(),
+  isPinned: z.boolean(),
+  confidenceScore: z.number(),
+  sourceConversationId: z.string().optional(),
+  expiresAt: z.string().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export const AIContextSchema = z.object({
+  userId: z.string(),
+  familyId: z.string(),
+  familyName: z.string(),
+  memberCount: z.number(),
+  currentScreen: z.string().optional(),
+  recentActivities: z.array(z.string()),
+  pinnedMemories: z.array(AIMemorySchema),
+  updatedAt: z.string(),
+});
+
 export const MessageSchema = z.object({
   id: z.string(),
   conversationId: z.string(),

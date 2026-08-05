@@ -1,4 +1,21 @@
-export type MainTab = 'home' | 'parenting' | 'health' | 'finance' | 'ai' | 'activity' | 'notification' | 'profile' | 'mood' | 'psychology';
+export type MainTab =
+  | 'home'
+  | 'analytics'
+  | 'memories'
+  | 'smart_home'
+  | 'family_safety'
+  | 'parenting'
+  | 'health'
+  | 'finance'
+  | 'protection'
+  | 'education'
+  | 'calendar'
+  | 'ai'
+  | 'activity'
+  | 'notification'
+  | 'profile'
+  | 'mood'
+  | 'psychology';
 
 export type AuthScreen = 'login' | 'register' | 'forgot_password';
 
